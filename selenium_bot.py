@@ -82,37 +82,23 @@ print(f"[예측 결과] {pred_text}")
 
 # CAPTCHA 자동 제출
 try:
+    # 입력창 채우기
     input_box = wait.until(EC.presence_of_element_located((By.CSS_SELECTOR, "input[type='text']")))
     input_box.clear()
     input_box.send_keys(pred_text)
 
-    # ✅ 버튼 탐색 시 다양한 XPath를 시도 (실제 공격자 방식)
-    button_xpaths = [
-        "//button[contains(text(), '인증')]",
-        "//button[contains(@onclick, 'verifyCaptcha')]",
-        "//button[@onclick='verifyCaptcha()']",
-        "//button[contains(@class, 'neon-btn') and contains(@onclick, 'verifyCaptcha')]"
-    ]
+    # 제출 버튼 클릭
+    submit_btn = wait.until(EC.element_to_be_clickable((By.ID, "submit-btn")))
+    driver.execute_script("arguments[0].scrollIntoView(true);", submit_btn)
+    submit_btn.click()
 
-    clicked = False
-    for xpath in button_xpaths:
-        try:
-            element = WebDriverWait(driver, 3).until(
-                EC.element_to_be_clickable((By.XPATH, xpath))
-            )
-            element.click()
-            print(f"✅ 인증 버튼 클릭 성공: {xpath}")
-            clicked = True
-            break
-        except:
-            continue
-
-    if not clicked:
-        print("❌ 인증 버튼 클릭 실패 (모든 XPath 실패)")
-
+    print("✅ 인증 버튼 클릭 완료")
     time.sleep(3)
 
 except Exception as e:
     driver.save_screenshot("error_screenshot.png")
     print(f"❌ 에러: {e}")
     print("🖼 스크린샷 저장: error_screenshot.png")
+
+finally:
+    driver.quit()
